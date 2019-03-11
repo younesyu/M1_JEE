@@ -9,7 +9,9 @@ import javax.persistence.Persistence;
 import javax.persistence.PersistenceException;
 import javax.persistence.TypedQuery;
 
+import myapp.model.FirstName;
 import myapp.model.Person;
+
 
 public class Dao {
 
@@ -93,13 +95,12 @@ public class Dao {
 	   }
 	}
    
-   public void deletePerson(Person p) {
+   public void removePerson(Person p) {
 	   EntityManager em = null;
 	   try {
 	      em = newEntityManager();
 	      // utilisation de l'EntityManager
-	      if (findPerson(p.getId()) != null) // if statement may be disposable
-	    	  em.remove(p);
+	      em.remove(p);
 	      em.getTransaction().commit();
 	      System.err.println("deletePerson with id=" + p.getId());
 	      return;
@@ -122,17 +123,29 @@ public class Dao {
 	    }
 	}
    
+   
    public List<Person> findPersonsByFirstName(String pattern) {
 	   EntityManager em = null;
 	    try {
 	        em = newEntityManager();
-	        String query = "SELECT p FROM Person p WHERE p.first_name LIKE " + pattern;
-	        TypedQuery<Person> q = em.createQuery(query, Person.class);
+	        TypedQuery<Person> q = em.createNamedQuery("findPersonsByFirstName", Person.class);
+	        q.setParameter("pattern", pattern);
 	        return q.getResultList();
 	    } finally {
 	        closeEntityManager(em);
 	    }
 	}
+   
+   public List<FirstName> getAllFirstNames() {
+	   EntityManager em = null;
+	    try {
+	        em = newEntityManager();
+	        TypedQuery<FirstName> q = em.createNamedQuery("getAllFirstNames", FirstName.class);
+	        return q.getResultList();
+	    } finally {
+	        closeEntityManager(em);
+	    }
+   }
    
    
 

@@ -2,12 +2,20 @@ package myapp.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.PostUpdate;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -24,6 +32,16 @@ import javax.persistence.Version;
          "first_name", "birth_day"
       })
    })
+
+@NamedQuery(
+        name="findPersonsByFirstName",
+        query="SELECT p FROM Person p WHERE p.firstName LIKE :pattern"
+)
+//TODO ça
+@NamedQuery(
+        name="findPersonsByCarModel",
+        query="SELECT p FROM Person p WHERE p.firstName LIKE :pattern"
+)
 public class Person implements Serializable {
 
    private static final long serialVersionUID = 1L;
@@ -41,6 +59,13 @@ public class Person implements Serializable {
    @Temporal(TemporalType.DATE)
    @Column(name = "birth_day")
    private Date birthDay;
+   
+   @Embedded
+   private Address address;
+   
+   @OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST },
+		      fetch = FetchType.LAZY, mappedBy = "owner")
+   private Set<Car> cars;
 
    @Version()
    private long version = 0;
@@ -98,6 +123,31 @@ public class Person implements Serializable {
    public void setBirthDay(Date birthDay) {
       this.birthDay = birthDay;
    }
+   
+   public Address getAddress() {
+      return address;
+   }
+
+   public void setAddress(Address address) {
+      this.address = address;
+   }
+   
+   public Set<Car> getCars() {
+      return cars;
+   }
+
+   public void setCars(Set<Car> cars) {
+      this.cars = cars;
+   }
+
+   public void addCar(Car c) {
+      if (cars == null) {
+         cars = new HashSet<>();
+      }
+      cars.add(c);
+      c.setOwner(this);
+   }
+
 
    public long getVersion() {
       return version;
