@@ -121,5 +121,19 @@ public class Dao {
 	        closeEntityManager(em);
 	    }
 	}
+   
+   public List<Person> findPersonsByFirstName(String pattern) {
+	   EntityManager em = null;
+	    try {
+	        em = newEntityManager();
+	        String query = "SELECT p FROM Person p WHERE p.first_name LIKE " + pattern;
+	        TypedQuery<Person> q = em.createQuery(query, Person.class);
+	        return q.getResultList();
+	    } finally {
+	        closeEntityManager(em);
+	    }
+	}
+   
+   
 
 }

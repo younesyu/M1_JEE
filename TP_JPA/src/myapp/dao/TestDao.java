@@ -54,7 +54,7 @@ public class TestDao {
    }
    
    @Test(expected=Exception.class)
-   public void testAddPersonSameName() {
+   public void testAddSamePerson() {
 	   Person p1 = new Person("Anthony", new Date());
 	   Person p2 = new Person("Anthony", new Date());
 	   
