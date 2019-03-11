@@ -1,0 +1,9 @@
+/*C3*/SET SCHEMA PUBLIC
+\u000a    alter table TPerson \u000a       drop constraint UK58gbcq3p83fgxehg706edmoun
+\u000a    alter table TPerson \u000a       add constraint UK58gbcq3p83fgxehg706edmoun unique (first_name, birth_day)
+DELETE FROM TPERSON WHERE ID=1
+INSERT INTO TPERSON VALUES(1,'2019-03-11','Joan',1)
+COMMIT
+ALTER SEQUENCE PUBLIC.HIBERNATE_SEQUENCE RESTART WITH 14
+ALTER SEQUENCE PUBLIC.HIBERNATE_SEQUENCE RESTART WITH 15
+DISCONNECT
