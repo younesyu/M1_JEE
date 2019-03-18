@@ -7,7 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedQuery;
+
 
 
 @Entity
@@ -38,11 +38,11 @@ public class Car implements Serializable {
    }
 
    @Override
-   public String toString() {
-      return "Car(" + immatriculation + ")";
-   }
+	public String toString() {
+		return "Car [immatriculation=" + immatriculation + ", model=" + model + ", owner=" + owner + "]";
+	}
 
-   public String getImmatriculation() {
+public String getImmatriculation() {
       return immatriculation;
    }
 
@@ -65,5 +65,23 @@ public class Car implements Serializable {
    public void setOwner(Person owner) {
       this.owner = owner;
    }
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Car other = (Car) obj;
+		if (immatriculation == null) {
+			if (other.immatriculation != null)
+				return false;
+		} else if (!immatriculation.equals(other.immatriculation))
+			return false;
+		return true;
+	}
+	   
 
 }

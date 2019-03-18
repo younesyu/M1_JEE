@@ -2,6 +2,8 @@ package myapp.dao;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
@@ -14,6 +16,7 @@ import org.junit.Test;
 
 import myapp.model.Address;
 import myapp.model.Car;
+import myapp.model.Movie;
 import myapp.model.Person;
 
 public class TestDao {
@@ -21,12 +24,18 @@ public class TestDao {
    static Dao dao;
    static Person john;
    static Person jane;
+   static Person jay;
+   static Person joan;
+   static Person adam;
+   static Person harry;
+   static Person hermione;
    static Car car1;
    static Car car2;
    static Car car3;
 
    @BeforeClass
    public static void beforeAll() {
+	  
       dao = new Dao();
       dao.init();
       
@@ -50,8 +59,11 @@ public class TestDao {
 
    @AfterClass
    public static void afterAll() {
-	  dao.removePerson(john);
-	  dao.removePerson(jane);
+//	  dao.removePerson(john.getId());
+//	  dao.removePerson(jane.getId());
+//	  dao.removePerson(jay.getId());
+//	  dao.removePerson(adam.getId());
+//	  
       dao.close();
    }
 
@@ -71,12 +83,12 @@ public class TestDao {
    
    @Test
    public void testAddPerson() {
-	   Person p = new Person();
-	   p.setFirstName("Jay");
-	   p.setBirthDay(new Date());
+	   jay = new Person();
+	   jay.setFirstName("Jay");
+	   jay.setBirthDay(new Date());
 	   
-	   dao.addPerson(p);
-	   assertNotEquals(null, p.getId());
+	   dao.addPerson(jay);
+	   assertNotEquals(null, jay.getId());
    }
    
    @Test(expected=Exception.class)
@@ -87,8 +99,8 @@ public class TestDao {
 	   dao.addPerson(p1);
 	   dao.addPerson(p2);
 	   
-	   dao.removePerson(p1);
-	   dao.removePerson(p2);
+	   dao.removePerson(p1.getId());
+	   dao.removePerson(p2.getId());
    }
    
    @Test
@@ -108,17 +120,18 @@ public class TestDao {
    public void testRemovePerson() {
 	   Person ryan = new Person("Ryan", new Date());
 	   dao.addPerson(ryan);
-	   dao.removePerson(ryan);
 	   
-	   assertEquals(null, dao.findPerson(ryan.getId()));
-	   
+	   assertNotNull(dao.findPerson(ryan.getId()));
+	   dao.removePerson(ryan.getId());
+	   assertNull(dao.findPerson(ryan.getId()));
+
    }
 
 
 
    @Test
    public void testAddPersonCar() {
-	   Person adam = new Person("Adam", new Date());
+	   adam = new Person("Adam", new Date());
 	   adam.addCar(car1);
 	   
 	   dao.addPerson(adam);
@@ -130,11 +143,28 @@ public class TestDao {
    @Test
    public void testUpdatePersonCar() {
 	   jane.addCar(car2);
-	   jane.addCar(car3);
-	   
 	   dao.updatePerson(jane);
 	   
-	   assertTrue(dao.findPerson(jane.getId()).getCars().size() == 2);
+	   assertTrue(jane.getCars().contains(car2));
 	   
    }
+   
+
+   @Test
+   public void testAddPersonMovie() {
+	   harry = new Person("Harry", null);
+	   
+	   Movie harryPotter = new Movie("Harry Potter");
+	   Movie lotr = new Movie("LoTR");
+	   
+	   harry.addMovie(harryPotter);
+	   harry.addMovie(lotr);
+	   
+	   dao.addPerson(harry);
+	   assertNotNull(dao.findPerson(harry.getId()).getMovies());
+	   
+	   dao.removePerson(harry.getId());
+	   assertNull(dao.findPerson(harry.getId()));
+   }   
+   
 }

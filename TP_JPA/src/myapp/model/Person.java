@@ -14,6 +14,9 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.PostUpdate;
@@ -66,6 +69,33 @@ public class Person implements Serializable {
    @OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST },
 		      fetch = FetchType.LAZY, mappedBy = "owner")
    private Set<Car> cars;
+   
+
+   @ManyToMany(fetch = FetchType.LAZY,
+      cascade = { CascadeType.MERGE, CascadeType.PERSIST }
+      )
+   @JoinTable(
+      name = "Person_Movie",
+      joinColumns = { @JoinColumn(name = "id_person") },
+      inverseJoinColumns = { @JoinColumn(name = "id_movie") }
+      )
+   Set<Movie> movies;
+
+   public Set<Movie> getMovies() {
+      return movies;
+   }
+
+   public void setMovies(Set<Movie> movies) {
+      this.movies = movies;
+   }
+
+   public void addMovie(Movie movie) {
+      if (movies == null) {
+         movies = new HashSet<>();
+      }
+      movies.add(movie);
+   }
+
 
    @Version()
    private long version = 0;

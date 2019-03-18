@@ -1,6 +1,7 @@
 package myapp.dao;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -10,6 +11,7 @@ import javax.persistence.PersistenceException;
 import javax.persistence.TypedQuery;
 
 import myapp.model.FirstName;
+import myapp.model.Movie;
 import myapp.model.Person;
 
 
@@ -50,6 +52,7 @@ public class Dao {
 	   }
 	}
 	
+	
 	// Nouvelle version simplifiée
 	public Person addPerson(Person p) {
 	   EntityManager em = null;
@@ -71,6 +74,8 @@ public class Dao {
 	      em = newEntityManager();
 	      // utilisation de l'EntityManager
 	      Person p = em.find(Person.class, id);
+	      if(p != null) p.getCars().size();
+	      if(p != null) p.getMovies().size();
 	      System.err.println("getPerson with id=" + id);
 	      return (p);
 	   } finally {
@@ -95,14 +100,15 @@ public class Dao {
 	   }
 	}
    
-   public void removePerson(Person p) {
+   public void removePerson(long id) {
 	   EntityManager em = null;
 	   try {
 	      em = newEntityManager();
 	      // utilisation de l'EntityManager
-	      em.remove(p);
+	      Person p = em.find(Person.class, id);
+	      if(p != null) em.remove(p);
 	      em.getTransaction().commit();
-	      System.err.println("deletePerson with id=" + p.getId());
+	      System.err.println("removePerson with id=" + p.getId());
 	      return;
 	   } finally {
 	      if (em != null) {
@@ -122,7 +128,6 @@ public class Dao {
 	        closeEntityManager(em);
 	    }
 	}
-   
    
    public List<Person> findPersonsByFirstName(String pattern) {
 	   EntityManager em = null;
@@ -147,6 +152,20 @@ public class Dao {
 	    }
    }
    
+   public Set<Movie> getMovies(long id) {
+	   EntityManager em = null;
+	   try {
+	      em = newEntityManager();
+	      // utilisation de l'EntityManager
+	      Person p = em.find(Person.class, id);
+	      if(p != null) return p.getMovies();
+	      return null;
+	   } finally {
+	      if (em != null) {
+	    	  closeEntityManager(em);
+	      }
+	   }
+   }
    
 
 }
