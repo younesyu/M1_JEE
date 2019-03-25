@@ -80,10 +80,23 @@ public class Person implements Serializable {
       inverseJoinColumns = { @JoinColumn(name = "id_movie") }
       )
    Set<Movie> movies;
+   
+   
+   @JoinColumn(
+	        name="Person_cv", unique=true, nullable=true, updatable=true)
+   private CV cv;
 
-   public Set<Movie> getMovies() {
-      return movies;
-   }
+   public CV getCv() {
+	   return cv;
+	}
+	
+	public void setCv(CV cv) {
+		this.cv = cv;
+	}
+
+	public Set<Movie> getMovies() {
+	    return movies;
+	}
 
    public void setMovies(Set<Movie> movies) {
       this.movies = movies;

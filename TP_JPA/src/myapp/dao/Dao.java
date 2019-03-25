@@ -1,171 +1,94 @@
 package myapp.dao;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
+import javax.persistence.LockModeType;
 import javax.persistence.Persistence;
-import javax.persistence.PersistenceException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceContextType;
 import javax.persistence.TypedQuery;
+import javax.transaction.Transactional;
+
+import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import myapp.model.FirstName;
-import myapp.model.Movie;
 import myapp.model.Person;
 
-
+@Service
+@Repository
+@Transactional
 public class Dao {
 
-   private EntityManagerFactory factory = null;
+	private EntityManagerFactory factory = null;
 
-   public void init() {
-      factory = Persistence.createEntityManagerFactory("myBase");
-   }
+	public void init() {
+		factory = Persistence.createEntityManagerFactory("myBase");
+	}
 
-   public void close() {
-      if (factory != null) {
-         factory.close();
-      }
-   }
-   
-	// Créer un EM et ouvrir une transaction
-	private EntityManager newEntityManager() {
-	   EntityManager em = factory.createEntityManager();
-	   em.getTransaction().begin();
-	   return (em);
+	public void close() {
+		if (factory != null) {
+			factory.close();
+		}
 	}
-	
-	// Fermer un EM et défaire la transaction si nécessaire
-	private void closeEntityManager(EntityManager em) {
-	   if (em != null) {
-	      if (em.isOpen()) {
-	         EntityTransaction t = em.getTransaction();
-	         if (t.isActive()) {
-	            try {
-	               t.rollback();
-	            } catch (PersistenceException e) {
-	            }
-	         }
-	         em.close();
-	      }
-	   }
+
+	@PersistenceContext(type = PersistenceContextType.TRANSACTION)
+	EntityManager em;
+
+	public <T> T find(Class<T> clazz, Object id) {
+		return em.find(clazz, id);
 	}
-	
-	
-	// Nouvelle version simplifiée
+
+	public <T> Collection<T> findAll(String query, Class<T> clazz) {
+		TypedQuery<T> q = em.createQuery(query, clazz);
+		return q.getResultList();
+	}
+
 	public Person addPerson(Person p) {
-	   EntityManager em = null;
-	   try {
-	      em = newEntityManager();
-	      // utilisation de l'EntityManager
-	      em.persist(p);
-	      em.getTransaction().commit();
-	      System.err.println("addPerson witdh id=" + p.getId());
-	      return (p);
-	   } finally {
-	      closeEntityManager(em);
-	   }
+		em.persist(p);
+		System.err.println("addPerson witdh id=" + p.getId());
+		return (p);
 	}
-   
-   public Person findPerson(long id) {
-	   EntityManager em = null;
-	   try {
-	      em = newEntityManager();
-	      // utilisation de l'EntityManager
-	      Person p = em.find(Person.class, id);
-	      if(p != null) p.getCars().size();
-	      if(p != null) p.getMovies().size();
-	      System.err.println("getPerson with id=" + id);
-	      return (p);
-	   } finally {
-	      if (em != null) {
-	    	  closeEntityManager(em);
-	      }
-	   }
+
+	public <T> T add(T entity) {
+		em.persist(entity);
+		return (entity);
 	}
-   
-   public void updatePerson(Person p) {
-	   EntityManager em = null;
-	   try {
-	      em = newEntityManager();
-	      // utilisation de l'EntityManager
-	      em.merge(p);
-	      em.getTransaction().commit();
-	      System.err.println("updatePerson with id=" + p.getId());
-	   } finally {
-	      if (em != null) {
-	    	  closeEntityManager(em);
-	      }
-	   }
+
+	public <T> T update(T entity) {
+		entity = em.merge(entity);
+		return entity;
 	}
-   
-   public void removePerson(long id) {
-	   EntityManager em = null;
-	   try {
-	      em = newEntityManager();
-	      // utilisation de l'EntityManager
-	      Person p = em.find(Person.class, id);
-	      if(p != null) em.remove(p);
-	      em.getTransaction().commit();
-	      System.err.println("removePerson with id=" + p.getId());
-	      return;
-	   } finally {
-	      if (em != null) {
-	    	  closeEntityManager(em);
-	      }
-	   }
+
+	public <T> void remove(Class<T> clazz, Object pk) {
+		T entity = em.find(clazz, pk);
+		if (entity != null) {
+			em.remove(entity);
+		}
 	}
-   
-   public List<Person> findAllPersons() {
-	    EntityManager em = null;
-	    try {
-	        em = newEntityManager();
-	        String query = "SELECT p FROM Person p";
-	        TypedQuery<Person> q = em.createQuery(query, Person.class);
-	        return q.getResultList();
-	    } finally {
-	        closeEntityManager(em);
-	    }
+
+	public List<Person> findPersonsByFirstName(String pattern) {
+		TypedQuery<Person> q = em.createNamedQuery("findPersonsByFirstName", Person.class);
+		q.setParameter("pattern", pattern);
+		return q.getResultList();
 	}
-   
-   public List<Person> findPersonsByFirstName(String pattern) {
-	   EntityManager em = null;
-	    try {
-	        em = newEntityManager();
-	        TypedQuery<Person> q = em.createNamedQuery("findPersonsByFirstName", Person.class);
-	        q.setParameter("pattern", pattern);
-	        return q.getResultList();
-	    } finally {
-	        closeEntityManager(em);
-	    }
+
+	public List<FirstName> getAllFirstNames() {
+		TypedQuery<FirstName> q = em.createNamedQuery("getAllFirstNames", FirstName.class);
+		return q.getResultList();
 	}
-   
-   public List<FirstName> getAllFirstNames() {
-	   EntityManager em = null;
-	    try {
-	        em = newEntityManager();
-	        TypedQuery<FirstName> q = em.createNamedQuery("getAllFirstNames", FirstName.class);
-	        return q.getResultList();
-	    } finally {
-	        closeEntityManager(em);
-	    }
-   }
-   
-   public Set<Movie> getMovies(long id) {
-	   EntityManager em = null;
-	   try {
-	      em = newEntityManager();
-	      // utilisation de l'EntityManager
-	      Person p = em.find(Person.class, id);
-	      if(p != null) return p.getMovies();
-	      return null;
-	   } finally {
-	      if (em != null) {
-	    	  closeEntityManager(em);
-	      }
-	   }
-   }
-   
+
+	public void changeFirstName(long idPerson, String firstName) {
+		Person p = em.find(Person.class, idPerson, LockModeType.PESSIMISTIC_WRITE);
+		// Vous pouvez utiliser em.lock(p, LockModeType.PESSIMISTIC_WRITE);
+		try {
+			Thread.sleep(3_000);
+		} catch (InterruptedException e) {
+		}
+		p.setFirstName(firstName);
+	}
 
 }

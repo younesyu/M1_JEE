@@ -42,7 +42,7 @@ public class Car implements Serializable {
 		return "Car [immatriculation=" + immatriculation + ", model=" + model + ", owner=" + owner + "]";
 	}
 
-public String getImmatriculation() {
+   public String getImmatriculation() {
       return immatriculation;
    }
 
